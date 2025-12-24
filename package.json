@@ -1,0 +1,9 @@
+{
+  "name": "health-interviews",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo \"no build\"",
+    "start": "echo \"static\""
+  }
+}

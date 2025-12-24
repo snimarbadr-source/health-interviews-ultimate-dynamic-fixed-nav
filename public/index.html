@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>مقابلات الصحة</title>
+  <meta name="theme-color" content="#0b1220" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <!-- Fixed Brand Header -->
+  <header class="brandbar" id="brandbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><path d="M32 4c15.5 0 28 12.5 28 28S47.5 60 32 60 4 47.5 4 32 16.5 4 32 4Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="M27 17h10v10h10v10H37v10H27V37H17V27h10V17Z" fill="currentColor"/></svg>
+      </div>
+      <div>
+        <div class="brand-title">مقابلات الصحة</div>
+        <div class="brand-sub">تحت إشراف: مستشفى ريسبكت</div>
+      </div>
+    </div>
+
+    <div class="page-title" id="pageTitle">مقابلات الصحة: تسجيل الدخول</div>
+
+    <div class="userchip" id="userChip" hidden>
+      <div class="userdot" aria-hidden="true"></div>
+      <div class="usertext">
+        <div class="username" id="chipName">admin</div>
+        <div class="userrole" id="chipRole">مدير النظام</div>
+      </div>
+      <button class="iconbtn" id="logoutBtn" title="تسجيل خروج">
+        <span class="icon">🚪</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="app" id="appRoot">
+    <!-- Intro -->
+    <section class="screen active" id="screenIntro">
+      <div class="intro">
+        <div class="intro-badge">
+          <div class="intro-logo" aria-hidden="true">
+            <svg viewBox="0 0 96 96"><defs><linearGradient id="ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22c55e"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs><circle cx="48" cy="48" r="40" fill="url(#ig)" opacity=".18"/><path d="M48 14c18.8 0 34 15.2 34 34S66.8 82 48 82 14 66.8 14 48 29.2 14 48 14Z" fill="none" stroke="url(#ig)" stroke-width="5"/><path d="M42 26h12v12h12v12H54v12H42V50H30V38h12V26Z" fill="url(#ig)"/></svg>
+          </div>
+          <div class="intro-text">
+            <h1>نظام مقابلات الصحة</h1>
+            <p>واجهة احترافية لإدارة المرشحين، التقييم، والملخص النهائي — بسرعة وبدون أخطاء.</p>
+          </div>
+        </div>
+
+        <div class="intro-actions">
+          <button class="primary" id="introStartBtn">
+            <span class="btnicon">🔐</span>
+            <span>بدء تسجيل الدخول</span>
+          </button>
+          <div class="hint">الدخول الافتراضي: <b>admin / admin</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Login -->
+    <section class="screen" id="screenLogin">
+      <div class="panel">
+        <h2>تسجيل الدخول</h2>
+        <p class="muted">أدخل بياناتك للوصول إلى لوحة التحكم.</p>
+        <div class="formgrid">
+          <label>
+            <span>اسم المستخدم</span>
+            <input id="loginUser" autocomplete="username" placeholder="مثال: admin" />
+          </label>
+          <label>
+            <span>كلمة المرور</span>
+            <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••" />
+          </label>
+        </div>
+        <button class="primary" id="loginBtn">
+          <span class="btnicon">➡️</span><span>دخول</span>
+        </button>
+        <button class="ghost" id="backToIntroBtn">رجوع</button>
+      </div>
+    </section>
+
+    <!-- Shell -->
+    <section class="screen" id="screenShell">
+      <div class="shell">
+        <aside class="sidebar" id="sidebar">
+          <button class="navbtn" data-route="#/dashboard">
+            <span class="navicon">📊</span><span>لوحة التحكم</span>
+          </button>
+          <button class="navbtn" data-route="#/candidates">
+            <span class="navicon">👤</span><span>المقابلة</span>
+          </button>
+          <button class="navbtn" data-route="#/admin" id="adminNavBtn">
+            <span class="navicon">⚙️</span><span>الإدارة</span>
+          </button>
+          <div class="spacer"></div>
+          <button class="navbtn danger" id="sidebarLogoutBtn">
+            <span class="navicon">🚪</span><span>تسجيل خروج</span>
+          </button>
+        </aside>
+
+        <section class="content">
+          <!-- Dashboard -->
+          <div class="view" id="viewDashboard">
+            <div class="grid2">
+              <div class="stat">
+                <div class="statlabel">إجمالي المرشحين</div>
+                <div class="statvalue" id="statTotal">0</div>
+              </div>
+              <div class="stat">
+                <div class="statlabel">المقبولين</div>
+                <div class="statvalue" id="statAccepted">0</div>
+              </div>
+              <div class="stat">
+                <div class="statlabel">المرفوضين</div>
+                <div class="statvalue" id="statRejected">0</div>
+              </div>
+              <div class="stat">
+                <div class="statlabel">قيد المراجعة</div>
+                <div class="statvalue" id="statPending">0</div>
+              </div>
+            </div>
+
+            <div class="panel wide">
+              <div class="panelhead">
+                <h3>أحدث 5 مرشحين تمت مراجعتهم</h3>
+              </div>
+              <div id="latestList" class="latest"></div>
+            </div>
+          </div>
+
+          <!-- Candidate Management -->
+          <div class="view" id="viewCandidates">
+            <div class="panel wide">
+              <div class="panelhead">
+                <h3>قائمة المرشحين</h3>
+                <div class="tools">
+                  <input id="searchBox" placeholder="بحث بالاسم أو الرقم الوطني..." />
+                  <select id="statusFilter">
+                    <option value="all">الكل</option>
+                    <option value="مقبول">مقبول</option>
+                    <option value="مرفوض">مرفوض</option>
+                    <option value="قيد المراجعة">قيد المراجعة</option>
+                  </select>
+                  <button class="ghost" id="addCandidateBtn" title="إضافة مرشح (للأدمن/المراجع)">
+                    <span class="btnicon">➕</span><span>إضافة</span>
+                  </button>
+                </div>
+              </div>
+              <div id="cards" class="cards"></div>
+            </div>
+          </div>
+
+          <!-- Candidate Detail -->
+          <div class="view" id="viewCandidate">
+            <div class="split">
+              <div class="panel">
+                <div class="panelhead">
+                  <h3>مدخلات التقييم</h3>
+                  <div class="tools">
+                    <button class="ghost" id="backToListBtn"><span class="btnicon">⬅️</span><span>رجوع</span></button>
+                    <button class="danger" id="deleteCandidateBtn" title="حذف المرشح (للأدمن فقط)">
+                      <span class="btnicon">🗑️</span><span>حذف</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="formgrid two">
+                  <label><span>الاسم</span><input id="c_name" /></label>
+                  <label><span>الرقم الوطني</span><input id="c_nid" /></label>
+                  <label><span>العمر</span><input id="c_age" /></label>
+                  <label><span>اسم المقابل</span><input id="c_interviewer" /></label>
+
+                  <label><span>جودة المايك</span>
+                    <select id="c_mic">
+                      <option value="">—</option>
+                      <option>ضعيف</option><option>متوسط</option><option>جيد</option><option>ممتاز</option>
+                    </select>
+                  </label>
+                  <label><span>عدد ساعات التواجد</span><input id="c_hours" placeholder="مثال: 5 ساعات" /></label>
+
+                  <label><span>وظيفة سابقة</span><input id="c_prevJob" /></label>
+                  <label><span>سجل إجرامي</span>
+                    <select id="c_criminal">
+                      <option value="">—</option>
+                      <option>لا</option><option>نعم</option>
+                    </select>
+                  </label>
+
+                  <label><span>خبرة بالمجال</span><input id="c_experience" /></label>
+                  <label><span>رخصة</span><select id="c_license"><option value="">—</option><option>نعم</option><option>لا</option></select></label>
+
+                  <label><span>وشوم</span><select id="c_tattoos"><option value="">—</option><option>نعم</option><option>لا</option></select></label>
+                  <label><span>نية الذهاب للشرطة</span><select id="c_intentPolice"><option value="">—</option><option>نعم</option><option>لا</option></select></label>
+
+                  <label><span>شهادة عدم ممانعة</span><select id="c_noObj"><option value="">—</option><option>نعم</option><option>لا</option></select></label>
+                  <label><span>مسعف سابق</span><select id="c_emt"><option value="">—</option><option>نعم</option><option>لا</option></select></label>
+
+                  <label class="span2"><span>جميع الإجوبة</span><textarea id="c_answers" rows="4"></textarea></label>
+                  <label class="span2"><span>المميزات</span><textarea id="c_strengths" rows="3"></textarea></label>
+                  <label class="span2"><span>الملاحظات</span><textarea id="c_notes" rows="3"></textarea></label>
+                </div>
+
+                <div class="panel small">
+                  <div class="panelhead">
+                    <h3>الدرجات (1 → 8)</h3>
+                    <div class="muted" id="scoreHint">يتم احتساب المجموع تلقائياً.</div>
+                  </div>
+                  <div id="scoresGrid" class="scores"></div>
+                  <div class="scorebar">
+                    <div>
+                      <div class="muted">المجموع</div>
+                      <div class="big" id="scoreTotal">0</div>
+                    </div>
+                    <div>
+                      <div class="muted">الحالة</div>
+                      <select id="c_status">
+                        <option>قيد المراجعة</option>
+                        <option>مقبول</option>
+                        <option>مرفوض</option>
+                      </select>
+                    </div>
+                    <div>
+                      <button class="primary" id="saveBtn">
+                        <span class="btnicon">💾</span><span>حفظ التعديلات</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panelhead">
+                  <h3>الملخص الآلي</h3>
+                </div>
+                <div class="summarybox" id="summaryBox"></div>
+                <button class="primary" id="copyBtn">
+                  <span class="btnicon">📋</span><span>نسخ الملخص النهائي</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin -->
+          <div class="view" id="viewAdmin">
+            <div class="panel wide">
+              <div class="panelhead">
+                <h3>نظام إدارة الأدمن والصلاحيات</h3>
+                <div class="muted">هذه الصفحة خاصة بمدير النظام (Super Admin).</div>
+              </div>
+
+              <div class="grid2">
+                <div class="panel">
+                  <h4>جدول المستخدمين</h4>
+                  <div class="tablewrap">
+                    <table class="table" id="usersTable"></table>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <h4>إضافة مستخدم جديد</h4>
+                  <div class="formgrid">
+                    <label><span>اسم المستخدم</span><input id="u_user" /></label>
+                    <label><span>كلمة المرور الجديدة</span><input id="u_pass" type="password" /></label>
+                    <label><span>تعيين الصلاحيات</span>
+                      <select id="u_role">
+                        <option>مدير النظام</option>
+                        <option>مراجع</option>
+                        <option>قارئ</option>
+                      </select>
+                    </label>
+                  </div>
+                  <button class="primary" id="addUserBtn"><span class="btnicon">➕</span><span>إضافة المستخدم</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal" id="modal" hidden>
+    <div class="modalcard">
+      <div class="modalicon" id="modalIcon">⚠️</div>
+      <div class="modalcontent">
+        <div class="modaltitle" id="modalTitle">تأكيد</div>
+        <div class="modaltext" id="modalText">هل أنت متأكد؟</div>
+      </div>
+      <div class="modalactions">
+        <button class="ghost" id="modalCancel">إلغاء</button>
+        <button class="primary" id="modalOk">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/app.js"></script>
+</body>
+</html>
