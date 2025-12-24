@@ -77,7 +77,7 @@ const KEYS = {
 
 const DEFAULT_USERS = [{username:"admin", password:"admin", role:"مدير النظام"}];
 
-const DEFAULT_FIELDS = [{"key": "prevJob", "label": "وظيفة سابقة", "type": "select", "options": ["عاطل", "كهرب", "تكسي", "قمامه", "سطحه", "عدل", "شرطه", "مطعم", "ورشه", "منجم", "تدوير", "خياطه"]}];
+const DEFAULT_FIELDS = [{"key": "micQuality", "label": "جودة المايك", "type": "select", "options": ["0", "1", "2"]}, {"key": "hours", "label": "عدد ساعات التواجد", "type": "text", "options": []}, {"key": "prevJob", "label": "وظيفة سابقة", "type": "select", "options": ["عاطل", "كهرب", "تكسي", "قمامه", "سطحه", "عدل", "شرطه", "مطعم", "ورشه", "منجم", "تدوير", "خياطه"]}, {"key": "criminal", "label": "سجل إجرامي", "type": "select", "options": ["نعم", "لا"]}, {"key": "experience", "label": "خبرة بالمجال", "type": "select", "options": ["نعم", "لا"]}, {"key": "license", "label": "رخصة", "type": "select", "options": ["نعم", "لا"]}, {"key": "tattoos", "label": "وشوم", "type": "select", "options": ["نعم", "لا"]}, {"key": "policeIntent", "label": "نية الذهاب للشرطة", "type": "select", "options": ["نعم", "لا"]}, {"key": "noObjection", "label": "شهادة عدم ممانعة", "type": "select", "options": ["نعم", "لا"]}, {"key": "paramedic", "label": "مسعف سابق", "type": "select", "options": ["نعم", "لا"]}, {"key": "certificate", "label": "شهادة", "type": "select", "options": ["نعم", "لا"]}];
 
 
 let scoreSchema = [];
@@ -385,7 +385,7 @@ function renderCards(){
 
 async function addCandidateFlow(){
   if(!canEdit()){
-    alert("صلاحيات غير كافية"); return;
+    toast("تنبيه", "صلاحيات غير كافية"); return;
   }
   const newId = "cand-" + Math.random().toString(16).slice(2,10);
   const blank = {
@@ -583,7 +583,7 @@ function updateSummaryLive(){
 async function openCandidate(id){
   const c = candidates.find(x=>x.id===id);
   if(!c){
-    alert("لم يتم العثور على المرشح"); location.hash="#/candidates"; return;
+    toast("تنبيه", "لم يتم العثور على المرشح"); location.hash="#/candidates"; return;
   }
   currentCandidateId = id;
   showView("viewCandidate");
@@ -638,76 +638,89 @@ async function openCandidate(id){
 
 /* ===== Admin (Users) ===== */
 function renderUsersTable(){
-  if(!isAdmin()){
-    showView("viewDashboard");
-    return;
-  }
-  const users = LS.get(KEYS.users, DEFAULT_USERS);
   const t = $("usersTable");
+  const users2 = LS.get(KEYS.users, DEFAULT_USERS);
+
   t.innerHTML = `
     <tr>
       <th>اسم المستخدم</th>
       <th>الصلاحية</th>
-      <th>حذف</th>
+      <th>إجراءات</th>
     </tr>
   `;
 
-  users.forEach((u, idx)=>{
-    const isSelf = u.username === session.username;
+  users2.forEach(u=>{
     t.innerHTML += `
       <tr>
         <td>${escapeHtml(u.username)}</td>
         <td>
-          <select data-uidx="${idx}" ${isSelf?"disabled":""}>
-            ${["مدير النظام","مراجع","قارئ"].map(r=>`<option ${u.role===r?"selected":""}>${r}</option>`).join("")}
+          <select data-uid="${escapeHtml(u.username)}" class="roleSel">
+            <option ${u.role==="مدير النظام"?"selected":""}>مدير النظام</option>
+            <option ${u.role==="مراجع"?"selected":""}>مراجع</option>
+            <option ${u.role==="قارئ"?"selected":""}>قارئ</option>
           </select>
         </td>
         <td>
-          <button class="danger" data-del="${idx}" ${isSelf?"disabled":""}>حذف</button>
+          <div class="rowactions">
+            <button class="ghost tiny" data-edit="${escapeHtml(u.username)}">تعديل</button>
+            ${u.username==="admin" ? "" : `<button class="danger tiny" data-del="${escapeHtml(u.username)}">حذف</button>`}
+          </div>
         </td>
       </tr>
     `;
   });
 
-  // change role
-  t.querySelectorAll("select[data-uidx]").forEach(sel=>{
-    sel.onchange = async ()=>{
-      const idx = Number(sel.getAttribute("data-uidx"));
-      const users2 = LS.get(KEYS.users, DEFAULT_USERS);
-      users2[idx].role = sel.value;
-      saveUsers(users2);
-      };
-  });
-
-  // delete user
-  t.querySelectorAll("button[data-del]").forEach(btn=>{
-    btn.onclick = async ()=>{
-      const idx = Number(btn.getAttribute("data-del"));
-      const users2 = LS.get(KEYS.users, DEFAULT_USERS);
-      const target = users2[idx];
-      users2.splice(idx,1);
-      saveUsers(users2);
+  t.querySelectorAll(".roleSel").forEach(sel=>{
+    sel.addEventListener("change", ()=>{
+      const uid = sel.getAttribute("data-uid");
+      const users3 = LS.get(KEYS.users, DEFAULT_USERS);
+      const idx = users3.findIndex(x=>x.username===uid);
+      if(idx<0) return;
+      const oldRole = users3[idx].role;
+      users3[idx].role = sel.value;
+      saveUsers(users3);
+      logEvent("تعديل","صلاحية", `${uid}: ${oldRole} -> ${sel.value}`);
+      toast("تم","تم تحديث الصلاحية");
       renderUsersTable();
-    };
+    });
   });
 
-  $("addUserBtn").onclick = async ()=>{
-    const username = normalizeStr($("u_user").value);
-    const password = normalizeStr($("u_pass").value);
-    const role = $("u_role").value;
-    if(!username || !password){
-      toast("تنبيه","أدخل اسم المستخدم وكلمة المرور"); return;
-    }
-    const users2 = LS.get(KEYS.users, DEFAULT_USERS);
-    if(users2.some(u=>u.username===username)){
-      toast("تنبيه","اسم المستخدم مستخدم مسبقاً"); return;
-    }
-    users2.push({username,password,role});
-    saveUsers(users2);
-    $("u_user").value=""; $("u_pass").value=""; $("u_role").value="مراجع";
-    renderUsersTable();
-    alert("تمت إضافة المستخدم");
-};
+  t.querySelectorAll("[data-edit]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const uname = btn.getAttribute("data-edit");
+      const users3 = LS.get(KEYS.users, DEFAULT_USERS);
+      const u = users3.find(x=>x.username===uname);
+      if(!u) return;
+      const nu = prompt("اسم المستخدم الجديد:", u.username);
+      if(nu===null) return;
+      const np = prompt("كلمة المرور الجديدة (اتركها فارغة بدون تغيير):", "");
+      const newName = (nu||"").trim();
+      if(!newName){ toast("تنبيه","اسم المستخدم مطلوب"); return; }
+      const exists = users3.some(x=>x.username===newName && x.username!==u.username);
+      if(exists){ toast("تنبيه","اسم المستخدم موجود"); return; }
+      const old = u.username;
+      u.username = newName;
+      if(np && np.trim()!=="") u.password = np.trim();
+      LS.set(KEYS.users, users3);
+      logEvent("تعديل","مستخدم", `${old} -> ${u.username}`);
+      toast("تم","تم تعديل المستخدم");
+      renderUsersTable();
+    });
+  });
+
+  t.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const uname = btn.getAttribute("data-del");
+      const users3 = LS.get(KEYS.users, DEFAULT_USERS);
+      const idx = users3.findIndex(x=>x.username===uname);
+      if(idx<0) return;
+      users3.splice(idx,1);
+      saveUsers(users3);
+      logEvent("حذف","مستخدم", uname);
+      toast("تم","تم حذف المستخدم");
+      renderUsersTable();
+    });
+  });
 }
 
 
@@ -817,7 +830,7 @@ function saveField(){
   else customFields.push(newField);
 
   LS.set(KEYS.fields, customFields);
-  alert("تم حفظ الحقل");
+  toast("تنبيه", "تم حفظ الحقل");
   clearFieldForm();
   renderFieldsTable();
 
@@ -832,7 +845,7 @@ function deleteField(key){
   customFields = LS.get(KEYS.fields, DEFAULT_FIELDS);
   customFields = customFields.filter(x=>x.key!==key);
   LS.set(KEYS.fields, customFields);
-  alert("تم حذف الحقل");
+  toast("تنبيه", "تم حذف الحقل");
   renderFieldsTable();
 
   if(currentCandidateId){
@@ -849,7 +862,7 @@ function renderAuditTable(){
     <tr>
       <th>الوقت</th>
       <th>المستخدم</th>
-      <th>العملية</th>
+      <th>الإجراء</th>
       <th>الهدف</th>
       <th>تفاصيل</th>
     </tr>
@@ -865,13 +878,6 @@ function renderAuditTable(){
       </tr>
     `;
   });
-  if($("clearAuditBtn")){
-    $("clearAuditBtn").onclick = ()=>{
-      LS.set(KEYS.audit, []);
-      toast("تم", "تم مسح السجل");
-      renderAuditTable();
-    };
-  }
 }
 
 /* ===== Utils ===== */
@@ -886,19 +892,31 @@ function escapeHtml(str){
 
 /* ===== Init ===== */
 (async function init(){
-  await seedIfNeeded();
-  const {users} = loadAll();
+  seedIfNeeded();
+  loadAll();
+  bindUI();
 
-  bindGlobal();
-
-  // Always start on Intro screen
+  const intro = $("screenIntro");
+  if(intro){ intro.classList.remove("introOut"); }
   showScreen("screenIntro");
   setPageTitle("مقابلات الصحة");
-// Sidebar route buttons
-  document.querySelectorAll(".navbtn[data-route]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const r = btn.getAttribute("data-route");
-      location.hash = r;
-    });
-  });
+
+  setTimeout(()=>{ $("screenIntro")?.classList.add("introOut"); }, 3500);
+  setTimeout(()=>{
+    if(session){
+      $("userChip").hidden = false;
+      $("chipName").textContent = session.username;
+      $("chipRole").textContent = session.role;
+      $("adminNavBtn").style.display = (session.role==="مدير النظام") ? "inline-flex" : "none";
+      if($("controlNavBtn")) $("controlNavBtn").style.display = (session.role==="مدير النظام") ? "inline-flex" : "none";
+      if($("auditNavBtn")) $("auditNavBtn").style.display = (session.role==="مدير النظام") ? "inline-flex" : "none";
+      showScreen("screenShell");
+      route(location.hash || "#/dashboard");
+    }else{
+      showScreen("screenLogin");
+      setPageTitle("مقابلات الصحة: تسجيل الدخول");
+      $("loginUser").value="";
+      $("loginPass").value="";
+    }
+  }, 4000);
 })();

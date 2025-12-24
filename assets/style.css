@@ -407,3 +407,18 @@ button.danger{
 #screenIntro .intro-card{position:relative; overflow:hidden}
 #screenIntro.introOut{animation:introFade .55s ease forwards}
 @keyframes introFade{to{opacity:0; transform:scale(1.01); filter: blur(2px)}}
+
+/* Hard layout fix for admin/control/audit */
+#viewAdmin .admin-grid, #viewControl .control-grid{align-items:start}
+#viewAdmin .panel, #viewControl .panel, #viewAudit .panel{min-width:0}
+#viewAdmin .tablewrap, #viewControl .tablewrap, #viewAudit .tablewrap{max-width:100%}
+.table{min-width:520px}
+@media (max-width: 640px){
+  .table{min-width:0}
+  .toast{min-width:min(360px, 92vw)}
+}
+.table td{vertical-align:middle}
+.table td .rowactions{justify-content:flex-end}
+select.state0{border-color: rgba(251,113,133,.45); background: rgba(251,113,133,.08)}
+select.state1{border-color: rgba(250,204,21,.45); background: rgba(250,204,21,.08)}
+select.state2{border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.08)}
